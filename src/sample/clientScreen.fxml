@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
 <?import javafx.scene.media.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.*?>
@@ -13,19 +14,33 @@
          <children>
             <MenuBar>
               <menus>
-                <Menu mnemonicParsing="false" text="File">
+                <Menu fx:id="file_menu" mnemonicParsing="false" text="File">
                   <items>
-                    <MenuItem fx:id="upload_menuitem" mnemonicParsing="false" onAction="#handleUpload" text="Upload file" />
-                        <MenuItem fx:id="download_menuitem" mnemonicParsing="false" text="Download file" />
+                    <MenuItem fx:id="upload_menuitem" mnemonicParsing="false" onAction="#handleUpload" text="Upload file">
+                           <graphic>
+                              <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@upload.jpg" />
+                                 </image>
+                              </ImageView>
+                           </graphic></MenuItem>
+                        <MenuItem fx:id="download_menuitem" mnemonicParsing="false" text="Download file">
+                           <graphic>
+                              <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@download.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic></MenuItem>
                         <MenuItem fx:id="info_menuitem" mnemonicParsing="false" text="Server info" />
                   </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="About">
+                <Menu fx:id="about_menu" mnemonicParsing="false" text="About">
                   <items>
                     <MenuItem mnemonicParsing="false" text="Credits" />
                   </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Help">
+                <Menu fx:id="info_menu" mnemonicParsing="false" text="Help">
                   <items>
                     <MenuItem mnemonicParsing="false" text="How to...?" />
                   </items>
