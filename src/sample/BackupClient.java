@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 public class BackupClient implements ClientInterface, Serializable {
 
-    public FileInterface server;
+    public static FileInterface server;
 
     public BackupClient(String ip){
         super();
@@ -25,7 +25,7 @@ public class BackupClient implements ClientInterface, Serializable {
 
     }
 
-    public FileInterface getServer(){
+    public static FileInterface getServer(){
         return server;
     }
 
@@ -40,7 +40,7 @@ public class BackupClient implements ClientInterface, Serializable {
             e.printStackTrace();
         }
     }
-    public void saveFile(InputStream stream) throws RemoteException, IOException {
+    public static void saveFile(InputStream stream) throws RemoteException, IOException {
         FileOutputStream output = null;
 
         try {
@@ -68,16 +68,25 @@ public class BackupClient implements ClientInterface, Serializable {
         }
     }
 
-    public void send(String filepath, FileInterface server) throws RemoteException{
+    public static void send(FileInterface server, String filepath, String filename, String extension) throws RemoteException{
         try{
             SimpleRemoteInputStream istream = new SimpleRemoteInputStream(new FileInputStream(filepath));
-            server.sendFile(istream.export());
+            server.sendFile(istream.export(), filename, extension);
             istream.close();
         }
         catch (Exception e){
             e.printStackTrace();
         }
 
+    }
+
+    public static String getFileExtension(File file) {
+        String name = file.getName();
+        try {
+            return name.substring(name.lastIndexOf("."));
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     /*
