@@ -68,10 +68,10 @@ public class BackupClient implements ClientInterface, Serializable {
         }
     }
 
-    public static void send(FileInterface server, String filepath, String filename, String extension) throws RemoteException{
+    public static void send(FileInterface server, String filepath, String filename, String extension, long lastModified) throws RemoteException{
         try{
             SimpleRemoteInputStream istream = new SimpleRemoteInputStream(new FileInputStream(filepath));
-            server.sendFile(istream.export(), filename, extension);
+            server.sendFile(istream.export(), filename, extension, lastModified);
             istream.close();
         }
         catch (Exception e){

@@ -65,7 +65,7 @@ public class clientScreenController implements Initializable{
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home"))
         );
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All Images", "*.*"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"),
                 new FileChooser.ExtensionFilter("JPG", "*.jpg"),
                 new FileChooser.ExtensionFilter("GIF", "*.gif"),
                 new FileChooser.ExtensionFilter("BMP", "*.bmp"),
@@ -76,10 +76,14 @@ public class clientScreenController implements Initializable{
         chosenFiles = fileChooser.showOpenMultipleDialog(selectingFilesStage);
         System.out.println(chosenFiles);
 
+
         if (chosenFiles!=null){
             for (File f : chosenFiles){
-                BackupClient.send(BackupClient.getServer(),f.getPath(),f.getName(),BackupClient.getFileExtension(f));
-                System.out.println("Przesłano plik: " + f.getName() + " " + "!");
+                if (!BackupClient.getServer().checkFileOnServer(f.getName(),f.lastModified())){
+                    BackupClient.send(BackupClient.getServer(),f.getPath(),f.getName(),BackupClient.getFileExtension(f), f.lastModified());
+                    System.out.println("Przesłano plik: " + f.getName() + " " + "!");
+                }
+
             }
         }
 
