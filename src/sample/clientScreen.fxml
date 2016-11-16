@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.media.*?>
 <?import javafx.scene.text.*?>
@@ -42,7 +43,7 @@
                 </Menu>
                 <Menu fx:id="info_menu" mnemonicParsing="false" text="Help">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="How to...?" />
+                    <MenuItem fx:id="help_menuitem" mnemonicParsing="false" text="How to...?" />
                   </items>
                 </Menu>
               </menus>
@@ -57,24 +58,26 @@
                <font>
                   <Font size="30.0" />
                </font>
+               <FlowPane.margin>
+                  <Insets />
+               </FlowPane.margin>
             </Label>
-            <Label prefHeight="45.0" prefWidth="598.0" text="                                 Files currently on the server:" textAlignment="CENTER">
+            <Label prefHeight="45.0" prefWidth="411.0" text="                                 Files currently on the server:" textAlignment="CENTER">
                <font>
                   <Font size="19.0" />
                </font>
             </Label>
+            <Button fx:id="show_button" mnemonicParsing="false" onAction="#showButtonAction" prefHeight="25.0" prefWidth="67.0" text="Show" />
             <ScrollPane prefHeight="246.0" prefWidth="593.0">
                <content>
                   <VBox prefHeight="246.0" prefWidth="588.0">
                      <children>
                         <TableView fx:id="table" editable="true" prefHeight="249.0" prefWidth="588.0">
                           <columns>
-                              <TableColumn fx:id="idColumn" prefWidth="26.0" text="id" />
                             <TableColumn fx:id="filenameColumn" prefWidth="119.0" text="File name" />
-                            <TableColumn fx:id="extensionColumn" prefWidth="67.0" text="Extension" />
                               <TableColumn fx:id="lastModifiedColumn" prefWidth="105.0" text="Last modified" />
-                              <TableColumn fx:id="sizeColumn" prefWidth="82.0" text="Size" />
                               <TableColumn fx:id="versionColumn" prefWidth="67.0" text="Version" />
+                              <TableColumn fx:id="pathColumn" prefWidth="75.0" text="Path" visible="false" />
                           </columns>
                         </TableView>
                      </children>

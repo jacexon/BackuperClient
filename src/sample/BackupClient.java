@@ -2,10 +2,19 @@ package sample;
 import java.io.*;
 import java.rmi.*;
 import com.healthmarketscience.rmiio.*;
+import com.sun.corba.se.spi.activation.Server;
+import com.sun.xml.internal.bind.v2.util.ByteArrayOutputStreamEx;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TableView;
+import jdk.internal.util.xml.impl.Input;
 import org.apache.commons.logging.*;
 import sample.ClientInterface;
 
 import java.io.File.*;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class BackupClient implements ClientInterface, Serializable {
@@ -17,6 +26,7 @@ public class BackupClient implements ClientInterface, Serializable {
         try{
             server = (FileInterface)Naming.lookup("rmi://" + ip + "/BackupServer");
             System.err.println("Connected to server: " + ip);
+
         }
         catch (Exception e){
             e.printStackTrace();
@@ -30,7 +40,7 @@ public class BackupClient implements ClientInterface, Serializable {
     }
 
     public void getFile(RemoteInputStream rinput){
-        InputStream input = null;
+        InputStream input;
         try{
             input = RemoteInputStreamClient.wrap(rinput);
             saveFile(input);
@@ -40,6 +50,9 @@ public class BackupClient implements ClientInterface, Serializable {
             e.printStackTrace();
         }
     }
+
+
+
     public static void saveFile(InputStream stream) throws RemoteException, IOException {
         FileOutputStream output = null;
 
@@ -87,6 +100,28 @@ public class BackupClient implements ClientInterface, Serializable {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    public static ObservableList<ServerTable> getTable(RemoteInputStream ris) throws IOException {
+        InputStream in;
+        ObjectInputStream ois = null;
+        ObservableList<ServerTable> list = FXCollections.observableArrayList();
+        try {
+                in = RemoteInputStreamClient.wrap(ris);
+                ois = new ObjectInputStream(in);
+                Object ob = ois.readObject();
+                ois.close();
+                String[] srv = (String[]) ob;
+                for(int i = 0; i<srv.length; i = i+4){
+                    list.addAll(new ServerTable(srv[i],srv[i+1],srv[i+2],srv[i+3]));
+
+                }
+
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage() + " Wyjątek");
+        }
+        return list;
     }
 
     /*

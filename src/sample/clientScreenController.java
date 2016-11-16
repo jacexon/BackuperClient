@@ -1,14 +1,14 @@
 package sample;
 
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -18,9 +18,15 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.rmi.RemoteException;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -29,16 +35,7 @@ public class clientScreenController implements Initializable {
     private TableView<ServerTable> table;
 
     @FXML
-    private TableColumn<ServerTable, Integer> idColumn;
-
-    @FXML
     private TableColumn<ServerTable, String> filenameColumn;
-
-    @FXML
-    private TableColumn<ServerTable, String> extensionColumn;
-
-    @FXML
-    private TableColumn<ServerTable, Long> sizeColumn;
 
     @FXML
     private TableColumn<ServerTable, String> lastModifiedColumn;
@@ -46,11 +43,17 @@ public class clientScreenController implements Initializable {
     @FXML
     private TableColumn<ServerTable, String> versionColumn;
 
+    @FXML private TableColumn<ServerTable,String> pathColumn;
+
     @FXML
     private MenuItem upload_menuitem;
     @FXML
     private MenuItem download_menuitem;
+    @FXML private MenuItem help_menuitem;
+    @FXML private Button show_button;
 
+    @FXML
+    private ObservableList<ServerTable> data;
     @FXML
     private Menu file_menu;
     @FXML
@@ -77,7 +80,7 @@ public class clientScreenController implements Initializable {
                 new FileChooser.ExtensionFilter("BMP", "*.bmp"),
                 new FileChooser.ExtensionFilter("PNG", "*.png")
         );
-        //fileChooser.showOpenDialog(selectingFilesStage);
+
 
         chosenFiles = fileChooser.showOpenMultipleDialog(selectingFilesStage);
         System.out.println(chosenFiles);
@@ -86,11 +89,11 @@ public class clientScreenController implements Initializable {
             if (chosenFiles != null) {
                 for (File f : chosenFiles) {
                     System.out.println(f.getName() + " " + f.lastModified());
-                    if (!(BackupClient.getServer().checkFileOnServer(f.getName(), f.lastModified()))) {
+                    Date dt = new Date(f.lastModified());
+                    if (!(BackupClient.getServer().checkFileOnServer(f.getName(), dt))) {
                         BackupClient.send(BackupClient.getServer(), f.getPath(), f.getName(), BackupClient.getFileExtension(f), f.lastModified());
                         System.out.println("Przesłano plik: " + f.getName() + " " + "!");
                     }
-
                 }
             }
         } catch (Exception e) {
@@ -98,49 +101,42 @@ public class clientScreenController implements Initializable {
         }
     }
 
-
-    public File getChosenFile(int index) {
-        return chosenFiles.get(index);
-    }
-
-    public File getChosenFile() {
-        return chosenFiles.remove(0);
-    }
-
-    public int getNumberOfChosenFiles() {
-        return chosenFiles.size();
-    }
-
-    private int iNumber = 1;
-
-    private final ObservableList<ServerTable> data = FXCollections.observableArrayList(
-            new ServerTable(iNumber++, "lol", ".jpg", "2015-12-12", 1212122, "2.0"),
-            new ServerTable(iNumber++, "be", ".png", "2015-12-12", 20102121, "2.1"),
-            new ServerTable(iNumber++, "l", ".jpg", "2015-12-12", 1212122, "2.0"),
-            new ServerTable(iNumber++, "b.", ".png", "2015-12-12", 20102121, "2.1")
-    );
-
-
-    public void addRow(int id, String filename, String extension, String lastModified, long size, String version) {
-        data.add(new ServerTable(iNumber++, filename, extension, lastModified, size, version));
-        table.setItems(data);
+    public void showButtonAction(ActionEvent event){
+        try {
+            RemoteInputStream ris = BackupClient.getServer().tableStream();
+            data = BackupClient.getTable(ris);
+            table.getItems().clear();
+            table.getItems().addAll(data);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize(URL location, ResourceBundle resources){
 
         upload_menuitem.setAccelerator(new KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN));
         download_menuitem.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
-
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         filenameColumn.setCellValueFactory(new PropertyValueFactory<>("FileName"));
-        extensionColumn.setCellValueFactory(new PropertyValueFactory<>("Extension"));
         lastModifiedColumn.setCellValueFactory(new PropertyValueFactory<>("lastModified"));
-        sizeColumn.setCellValueFactory(new PropertyValueFactory<>("size"));
-        versionColumn.setCellValueFactory(new PropertyValueFactory<>("Version"));
+        versionColumn.setCellValueFactory(new PropertyValueFactory<>("version"));
+        pathColumn.setCellValueFactory(new PropertyValueFactory<>("path"));
 
-        table.setItems(data);
+        Platform.runLater(() -> {
+            try {
+                RemoteInputStream ris = BackupClient.getServer().tableStream();
+                data = BackupClient.getTable(ris);
+                table.getItems().clear();
+                table.getItems().addAll(data);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        });
+
     }
+
+
+
 
 }
 

@@ -15,7 +15,6 @@ import java.rmi.server.UnicastRemoteObject;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 public interface ClientInterface extends Remote{
-    //public static void saveFile(InputStream input) throws IOException;
     public static void saveFile(InputStream stream) throws RemoteException, IOException {
         FileOutputStream output = null;
 

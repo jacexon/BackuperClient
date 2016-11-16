@@ -35,6 +35,7 @@ public class LoginScreenController{
         if (port_textfield.getText().equals("1099")){
             try{
                 BackupClient client = new BackupClient(ip_textfield.getText());
+                //client.getTable(client.getServer().tableStream());
                 clientStage.setTitle("Client");
                 clientStage.setScene(clientScene);
                 clientStage.show();
