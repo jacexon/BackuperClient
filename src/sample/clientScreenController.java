@@ -25,6 +25,7 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -95,6 +96,11 @@ public class clientScreenController implements Initializable {
                         BackupClient.send(BackupClient.getServer(), f.getPath(), f.getName(), BackupClient.getFileExtension(f), f.lastModified());
                         System.out.println("Przesłano plik: " + f.getName() + " " + "!");
                     }
+
+                    else{
+                        //TODO okienko!
+                        System.out.println("Niestety plik już jest na serwerze!");
+                    }
                 }
             }
         } catch (Exception e) {
@@ -120,7 +126,6 @@ public class clientScreenController implements Initializable {
         String filename = table.getSelectionModel().getSelectedItem().getFileName() + "-v" +
                 table.getSelectionModel().getSelectedItem().getVersion();
         System.out.println(filename);
-        //TODO zły format ścieżki w DB
         try{
             BackupClient.getFile(BackupClient.getServer().passAStream(pathToGet),filename);
         }
