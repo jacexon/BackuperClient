@@ -39,11 +39,11 @@ public class BackupClient implements ClientInterface, Serializable {
         return server;
     }
 
-    public void getFile(RemoteInputStream rinput){
+    public static void getFile(RemoteInputStream rinput, String filename){
         InputStream input;
         try{
             input = RemoteInputStreamClient.wrap(rinput);
-            saveFile(input);
+            saveFile(input,filename);
         }
 
         catch (Exception e){
@@ -53,16 +53,18 @@ public class BackupClient implements ClientInterface, Serializable {
 
 
 
-    public static void saveFile(InputStream stream) throws RemoteException, IOException {
+    public static void saveFile(InputStream stream, String filename) throws IOException, RemoteException {
         FileOutputStream output = null;
-
+        File file = null;
+        String extension = filename.substring(filename.lastIndexOf("."),filename.lastIndexOf("-"));
         try {
-            File file = File.createTempFile("dataloool", ".jpg", new File("D:\\Tu"));
+            file = File.createTempFile(filename, extension, new File("D:\\Client"));
             output = new FileOutputStream(file);
+
             int chunk = 4096;
             byte [] result = new byte[chunk];
 
-            int readBytes = 0;
+            int readBytes;
             do {
                 readBytes = stream.read(result);
                 if (readBytes > 0)
@@ -70,13 +72,23 @@ public class BackupClient implements ClientInterface, Serializable {
                 System.out.println("Zapisuje...");
             } while(readBytes != -1);
             System.out.println(file.length());
+
             output.flush();
+
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally{
             if(output != null){
                 output.close();
-                System.out.println("Zamykam strumień klienta...");
+                if(file.renameTo(new File(file.getParent() + "\\" + filename + extension))){
+
+                    System.out.println("Rename succesful");
+                }
+                else{
+                    System.out.println("Rename failed");
+                }
+                System.out.println("Zamykam strumień...");
             }
         }
     }
@@ -114,7 +126,6 @@ public class BackupClient implements ClientInterface, Serializable {
                 String[] srv = (String[]) ob;
                 for(int i = 0; i<srv.length; i = i+4){
                     list.addAll(new ServerTable(srv[i],srv[i+1],srv[i+2],srv[i+3]));
-
                 }
 
         }

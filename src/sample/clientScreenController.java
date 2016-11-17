@@ -51,6 +51,7 @@ public class clientScreenController implements Initializable {
     private MenuItem download_menuitem;
     @FXML private MenuItem help_menuitem;
     @FXML private Button show_button;
+    @FXML private Button get_button;
 
     @FXML
     private ObservableList<ServerTable> data;
@@ -112,6 +113,23 @@ public class clientScreenController implements Initializable {
         }
     }
 
+    public void getButtonAction(ActionEvent event) throws RemoteException {
+        //TODO jeśli cokolwiek zaznaczone
+        String pathToGet = table.getSelectionModel().getSelectedItem().getPath();
+        System.out.println(pathToGet);
+        String filename = table.getSelectionModel().getSelectedItem().getFileName() + "-v" +
+                table.getSelectionModel().getSelectedItem().getVersion();
+        System.out.println(filename);
+        //TODO zły format ścieżki w DB
+        try{
+            BackupClient.getFile(BackupClient.getServer().passAStream(pathToGet),filename);
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources){
 
@@ -121,6 +139,7 @@ public class clientScreenController implements Initializable {
         lastModifiedColumn.setCellValueFactory(new PropertyValueFactory<>("lastModified"));
         versionColumn.setCellValueFactory(new PropertyValueFactory<>("version"));
         pathColumn.setCellValueFactory(new PropertyValueFactory<>("path"));
+
 
         Platform.runLater(() -> {
             try {

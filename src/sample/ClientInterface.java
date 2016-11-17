@@ -15,16 +15,18 @@ import java.rmi.server.UnicastRemoteObject;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 public interface ClientInterface extends Remote{
-    public static void saveFile(InputStream stream) throws RemoteException, IOException {
+    public static void saveFile(InputStream stream, String filename) throws IOException, RemoteException {
         FileOutputStream output = null;
-
+        File file = null;
         try {
-            File file = File.createTempFile("dataloool", ".jpg", new File("D:\\Tu"));
+            String extension = filename.substring(filename.lastIndexOf("."),filename.length());
+            file = File.createTempFile(filename, extension, new File("D:\\Client"));
             output = new FileOutputStream(file);
+
             int chunk = 4096;
             byte [] result = new byte[chunk];
 
-            int readBytes = 0;
+            int readBytes;
             do {
                 readBytes = stream.read(result);
                 if (readBytes > 0)
@@ -32,14 +34,25 @@ public interface ClientInterface extends Remote{
                 System.out.println("Zapisuje...");
             } while(readBytes != -1);
             System.out.println(file.length());
+
             output.flush();
+
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally{
             if(output != null){
                 output.close();
-                System.out.println("Zamykam strumień klienta...");
+                if(file.renameTo(new File(file.getParent() + "\\" + filename))){
+
+                    System.out.println("Rename succesful");
+                }else{
+                    System.out.println("Rename failed");
+                }
+                System.out.println("Zamykam strumień...");
             }
+
+
         }
     }
 

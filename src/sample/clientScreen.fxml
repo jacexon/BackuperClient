@@ -67,6 +67,7 @@
                   <Font size="19.0" />
                </font>
             </Label>
+            <Button fx:id="get_button" mnemonicParsing="false" onAction="#getButtonAction" text="Get" />
             <Button fx:id="show_button" mnemonicParsing="false" onAction="#showButtonAction" prefHeight="25.0" prefWidth="67.0" text="Show" />
             <ScrollPane prefHeight="246.0" prefWidth="593.0">
                <content>
