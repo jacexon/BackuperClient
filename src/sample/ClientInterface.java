@@ -1,4 +1,4 @@
-package sample;
+/*package sample;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -18,8 +18,8 @@ public interface ClientInterface extends Remote{
     public static void saveFile(InputStream stream, String filename) throws IOException, RemoteException {
         FileOutputStream output = null;
         File file = null;
+        String extension = filename.substring(filename.lastIndexOf("."),filename.lastIndexOf("-"));
         try {
-            String extension = filename.substring(filename.lastIndexOf("."),filename.length());
             file = File.createTempFile(filename, extension, new File("D:\\Client"));
             output = new FileOutputStream(file);
 
@@ -43,17 +43,15 @@ public interface ClientInterface extends Remote{
         } finally{
             if(output != null){
                 output.close();
-                if(file.renameTo(new File(file.getParent() + "\\" + filename))){
+                if(file.renameTo(new File(file.getParent() + "\\" + filename + extension))){
 
                     System.out.println("Rename succesful");
-                }else{
+                }
+                else{
                     System.out.println("Rename failed");
                 }
                 System.out.println("Zamykam strumień...");
             }
-
-
         }
     }
-
-}
+}*/
