@@ -1,9 +1,7 @@
 package sample;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,18 +16,19 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.io.FileUtils;
 
 public class clientScreenController implements Initializable {
     @FXML
@@ -94,7 +93,12 @@ public class clientScreenController implements Initializable {
                     Date dt = new Date(f.lastModified());
                     if (!(BackupClient.getServer().checkFileOnServer(f.getName(), dt))) {
                         BackupClient.send(BackupClient.getServer(), f.getPath(), f.getName(), BackupClient.getFileExtension(f), f.lastModified());
-                        System.out.println("Przesłano plik: " + f.getName() + " " + "!");
+                        Alert dialog = new Alert(Alert.AlertType.CONFIRMATION,"Confirm", ButtonType.OK, ButtonType.CANCEL);
+                        dialog.setHeaderText("Backup succesful");
+                        dialog.setContentText("File has been sent succesfully!");
+                        dialog.setResizable(true);
+                        dialog.getDialogPane().setPrefSize(250, 100);
+                        dialog.showAndWait();
                     }
 
                     else{
@@ -120,19 +124,50 @@ public class clientScreenController implements Initializable {
     }
 
     public void getButtonAction(ActionEvent event) throws RemoteException {
-        //TODO jeśli cokolwiek zaznaczone
-        String pathToGet = table.getSelectionModel().getSelectedItem().getPath();
-        System.out.println(pathToGet);
-        String filename = table.getSelectionModel().getSelectedItem().getFileName() + "-v" +
-                table.getSelectionModel().getSelectedItem().getVersion();
-        System.out.println(filename);
-        try{
-            BackupClient.getFile(BackupClient.getServer().passAStream(pathToGet),filename);
+        if(table.getSelectionModel().getSelectedItem() != null){
+            String pathToGet = table.getSelectionModel().getSelectedItem().getPath();
+            System.out.println(pathToGet);
+            String filename = table.getSelectionModel().getSelectedItem().getFileName() + "-v" +
+                    table.getSelectionModel().getSelectedItem().getVersion();
+            System.out.println(filename);
+            try{
+                if(!checkFile(filename)){
+                    BackupClient.getFile(BackupClient.getServer().passAStream(pathToGet),filename);
+                }
+            }
+            catch(Exception e){
+                System.out.println(e.getMessage());
+            }
         }
-        catch(Exception e){
-            System.out.println(e.getMessage());
+        else {
+            Alert dialog = new Alert(Alert.AlertType.INFORMATION,"Confirm", ButtonType.OK, ButtonType.CANCEL);
+            dialog.setHeaderText("No file is selected!");
+            dialog.setContentText("Please select the file first and then press GET");
+            dialog.setResizable(true);
+            dialog.getDialogPane().setPrefSize(250, 200);
+            dialog.showAndWait();
         }
 
+
+    }
+
+    public boolean checkFile(String fileName){
+        File file = new File("D:\\Client");
+        boolean isInClient = false;
+        Collection<File> files = FileUtils.listFiles(file, null, false);
+        for(File file2 : files){
+            if (file2.getName().substring(0,file2.getName().lastIndexOf(".")).equals(fileName)){
+                isInClient = true;
+                Alert dialog = new Alert(Alert.AlertType.ERROR,"Confirm", ButtonType.OK, ButtonType.CANCEL);
+                dialog.setHeaderText("Retrieving file error");
+                dialog.setContentText("You have the file already!");
+                dialog.setResizable(true);
+                dialog.getDialogPane().setPrefSize(250, 100);
+                dialog.showAndWait();
+                break;
+            }
+        }
+        return isInClient;
     }
 
     @Override

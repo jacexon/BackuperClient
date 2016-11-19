@@ -76,9 +76,9 @@
                         <TableView fx:id="table" editable="true" prefHeight="249.0" prefWidth="588.0">
                           <columns>
                             <TableColumn fx:id="filenameColumn" prefWidth="119.0" text="File name" />
-                              <TableColumn fx:id="lastModifiedColumn" prefWidth="105.0" text="Last modified" />
-                              <TableColumn fx:id="versionColumn" prefWidth="67.0" text="Version" />
-                              <TableColumn fx:id="pathColumn" prefWidth="75.0" text="Path" visible="false" />
+                              <TableColumn fx:id="lastModifiedColumn" prefWidth="131.0" text="Last modified" />
+                              <TableColumn fx:id="versionColumn" prefWidth="63.0" text="Version" />
+                              <TableColumn fx:id="pathColumn" prefWidth="136.0" text="Path" visible="false" />
                           </columns>
                         </TableView>
                      </children>
