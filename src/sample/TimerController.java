@@ -84,9 +84,9 @@ public class TimerController implements Initializable{
     private void selectFiles(int a){
         Stage selectingFilesStage = new Stage();
         FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         fileChooser.setTitle("Choose file(s)...");
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home"))
-        );
+
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("All Images", "*.*"),
                 new FileChooser.ExtensionFilter("JPG", "*.jpg"),
