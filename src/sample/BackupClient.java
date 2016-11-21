@@ -1,22 +1,31 @@
 package sample;
 import java.io.*;
 import java.rmi.*;
+import java.rmi.server.ExportException;
+
 import com.healthmarketscience.rmiio.*;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.ProgressBar;
+import javafx.stage.Stage;
 
 public class BackupClient implements Serializable {
 
     public static FileInterface server;
 
-    public BackupClient(String ip){
+    public BackupClient(String ip, String port){
         super();
         try{
-            server = (FileInterface)Naming.lookup("rmi://" + ip + "/BackupServer");
+            server = (FileInterface)Naming.lookup("rmi://" + ip + ":"+ port +"/BackupServer");
             System.err.println("Connected to server: " + ip);
 
         }
         catch (Exception e){
+            System.out.println("Witamasd");
             e.printStackTrace();
         }
 
@@ -39,8 +48,6 @@ public class BackupClient implements Serializable {
         }
     }
 
-
-
     public static void saveFile(InputStream stream, String filename) throws IOException, RemoteException {
         FileOutputStream output = null;
         File file = null;
@@ -51,18 +58,15 @@ public class BackupClient implements Serializable {
 
             int chunk = 4096;
             byte [] result = new byte[chunk];
-
             int readBytes;
             do {
                 readBytes = stream.read(result);
-                if (readBytes > 0)
+                if (readBytes > 0){
                     output.write(result, 0, readBytes);
+                }
                 System.out.println("Zapisuje...");
             } while(readBytes != -1);
-            System.out.println(file.length());
-
             output.flush();
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,10 +86,12 @@ public class BackupClient implements Serializable {
     }
 
     public static void send(FileInterface server, String filepath, String filename, String extension, long lastModified) throws RemoteException{
+
         try{
             SimpleRemoteInputStream istream = new SimpleRemoteInputStream(new FileInputStream(filepath));
             server.sendFile(istream.export(), filename, extension, lastModified);
             istream.close();
+
         }
         catch (Exception e){
             e.printStackTrace();
@@ -124,6 +130,23 @@ public class BackupClient implements Serializable {
             System.out.println(e.getMessage() + " Wyjątek");
         }
         return list;
+    }
+
+    public static int getNumberOfChunks(RemoteInputStream ris) throws IOException {
+        InputStream in;
+        ObjectInputStream ois = null;
+        int chunks = 0;
+        try {
+            in = RemoteInputStreamClient.wrap(ris);
+            ois = new ObjectInputStream(in);
+            chunks = ois.readInt();
+            ois.close();
+
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage() + " Wyjątek23");
+        }
+        return chunks;
     }
 
     /*
