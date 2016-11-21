@@ -27,10 +27,7 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Time;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.*;
 
 import javafx.util.Duration;
 import org.apache.commons.io.FileUtils;
@@ -89,42 +86,28 @@ public class clientScreenController implements Initializable {
         chosenFiles = fileChooser.showOpenMultipleDialog(selectingFilesStage);
         System.out.println(chosenFiles);
 
-        try {
-            if (chosenFiles != null) {
-                for (File f : chosenFiles) {
+        if (chosenFiles != null) {
+
+            for (File f : chosenFiles) {
+
                     progressBarController.fsize = f.length();
-                    System.out.println(f.getName() + " " + f.lastModified());
+                    progressBarController.amountOfFiles = chosenFiles.size();
+                    progressBarController.filename = f.getName();
+
                     Date dt = new Date(f.lastModified());
                     if (!(BackupClient.getServer().checkFileOnServer(f.getName(), dt))) {
-                        try {
-                            createProgressBarWindow();
-                            Runnable task = () -> {
-                                try {
-                                    BackupClient.send(BackupClient.getServer(), f.getPath(), f.getName(), BackupClient.getFileExtension(f), f.lastModified());
-                                } catch (RemoteException e) {
-                                    System.out.println("ADASDW");
-                                    e.printStackTrace();
-                                }
-                            };
-                            new Thread(task).start();
-                            }
-                            catch(Exception e){
-                                System.out.println("Wywaliło mnie");
-                                e.getMessage();
-                            }
 
-                            finally{
-                            Alert dialog = new Alert(Alert.AlertType.CONFIRMATION, "Confirm", ButtonType.OK, ButtonType.CANCEL);
-                            dialog.setHeaderText("Backup succesful");
-                            dialog.setContentText("File has been sent succesfully!");
-                            dialog.setResizable(true);
-                            dialog.getDialogPane().setPrefSize(250, 100);
-                            dialog.showAndWait();
-                            if(dialog.getResult() == ButtonType.OK){
-                                dialog.close();
+                        createProgressBarWindow();
+                        Runnable task = () -> {
+                            try {
+                                BackupClient.send(BackupClient.getServer(), f.getPath(), f.getName(), BackupClient.getFileExtension(f), f.lastModified());
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                            }
-                        }
+                        };
+                        new Thread(task).start();
+
+                    }
                     else{
                         Alert dialog = new Alert(Alert.AlertType.INFORMATION,"Confirm", ButtonType.OK, ButtonType.CANCEL);
                         dialog.setHeaderText("File exists on the server");
@@ -135,9 +118,7 @@ public class clientScreenController implements Initializable {
                     }
                 }
             }
-        } catch (Exception e) {
-            System.out.println(e.getCause().getMessage());
-        }
+
     }
 
     public void showButtonAction(ActionEvent event){
