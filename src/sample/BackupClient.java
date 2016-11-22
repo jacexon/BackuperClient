@@ -29,7 +29,7 @@ public class BackupClient implements Serializable {
             System.out.println("Witamasd");
             e.printStackTrace();
         }
-
+        new Scrubwoman();
 
     }
 
@@ -66,7 +66,6 @@ public class BackupClient implements Serializable {
                     output.write(result, 0, readBytes);
                     clientChunks++;
                 }
-                System.out.println("Zapisuje...");
             } while(readBytes != -1);
             output.flush();
 

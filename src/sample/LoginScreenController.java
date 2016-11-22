@@ -23,11 +23,6 @@ public class LoginScreenController{
     @FXML
     private CheckBox default_cbox;
 
-
-
-
-
-
     @FXML
     private void connectButtonAction(ActionEvent event) throws IOException{
         System.out.println("Witam!");
@@ -35,7 +30,7 @@ public class LoginScreenController{
         Scene clientScene = new Scene(clientScreen);
         Stage clientStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         //TODO poprawna obsługa nawiązywania połączenia z serwerem
-        if (port_textfield.getText().equals("1099")){
+        if (Integer.parseInt(port_textfield.getText()) > 1024 && !ip_textfield.getText().equals("")){
             try{
                 BackupClient client = new BackupClient(ip_textfield.getText(), port_textfield.getText());
                 clientStage.setTitle("Client");

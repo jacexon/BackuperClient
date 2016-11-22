@@ -84,6 +84,7 @@ public class clientScreenController implements Initializable {
         chosenFiles = fileChooser.showOpenMultipleDialog(selectingFilesStage);
         System.out.println(chosenFiles);
 
+        progressBarController.SendOrGet = 0;
         progressBarController.fsize.clear();
         progressBarController.filename.clear();
         progressBarController.order = 0;
@@ -153,6 +154,7 @@ public class clientScreenController implements Initializable {
                     progressBarController.filename.clear();
                     progressBarController.order = 0;
                     progressBarController.counter = 0;
+                    progressBarController.SendOrGet = 1;
 
 
                     progressBarController.filename.add(filenameb);
