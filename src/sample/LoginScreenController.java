@@ -38,7 +38,6 @@ public class LoginScreenController{
         if (port_textfield.getText().equals("1099")){
             try{
                 BackupClient client = new BackupClient(ip_textfield.getText(), port_textfield.getText());
-                //client.getTable(client.getServer().tableStream());
                 clientStage.setTitle("Client");
                 clientStage.setScene(clientScene);
                 clientStage.show();
@@ -54,8 +53,6 @@ public class LoginScreenController{
             port_textfield.clear();
             error_connection.setText("Invalid IP or port! Try again.");
         }
-
-
     }
 
     @FXML

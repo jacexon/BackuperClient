@@ -51,7 +51,6 @@ public class BackupTimer implements Runnable{
                 periodicDate = date.getTime() + period;
             }
 
-            System.out.println("watek ruszyl");
             try {
                 Thread.sleep(period / 60);
             } catch (InterruptedException e) {

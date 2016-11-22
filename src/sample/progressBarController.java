@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
@@ -21,45 +22,67 @@ public class progressBarController implements Initializable{
     @FXML private Label sent_label;
     @FXML private Button ok_button;
 
-    public static long fsize = 0;
+    /*
+    public static long[] fsize = new long[3];
     public static int order = 0;
+    public static int counter = 0;
     public static int amountOfFiles = 0;
-    public static String filename = "";
+    public static String[] filename = {"1", "1"};
+    */
 
-    public void controlProgress(String filename, long fsize){
+    public static int SendOrGet = 0;
+    public static int order = 0;
+    public static int counter = 0;
+    public static int amountOfFiles = 0;
+    public static ArrayList<Long> fsize = new ArrayList<>();
+    public static ArrayList<String> filename = new ArrayList<>();
+
+
+
+    public void controlProgress(){
+        final int realAmount = amountOfFiles;
+
         Runnable task = () -> {
-            long progressSize = 0L;
-            System.out.println("ROZMIAR PLIKU: " + fsize);
-            order++;
-            info_label.setText("Sending file " + filename + "... (" + order + " of " + amountOfFiles+ ")");
-            while (progressSize<fsize){
-                try {
-                    //progressSize=(BackupClient.getNumberOfChunks(BackupClient.getServer().chunkStream())*4096);
-
-                    progressSize=(BackupClient.getServer().getChunk()*4096);
-                    double coeff = (progressSize*1.0/fsize*1.0);
-                    System.out.println("Stosunek: " + coeff);
-                    prg.setProgress(coeff);
-                    Thread.sleep(10);
+            while (amountOfFiles!=0){
+               /// if(SendOrGet == 0){
+               ///
+                ///}
+                long progressSize = 0L;
+                System.out.println("ROZMIAR PLIKU: " + fsize.get(counter));
+                order++;
+                info_label.setText("Sending file " + filename.get(counter) + "... (" + order + " of " + realAmount+ ")");
+                while (progressSize<fsize.get(counter)){
+                    try {
+                        progressSize=(BackupClient.getServer().getChunk()*4096);
+                        double coeff = (progressSize*1.0/fsize.get(counter)*1.0);
+                        System.out.println("Stosunek: " + coeff);
+                        prg.setProgress(coeff);
+                        Thread.sleep(10);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-                catch (Exception e) {
-                    e.printStackTrace();
+                sent_label.setVisible(true);
+                ok_button.setVisible(true);
+                try{
+                    BackupClient.getServer().resetChunks();
+                    BackupClient.resetClientChunks();
+                    Thread.sleep(3000);
+                    Platform.runLater(() -> {
+                        sent_label.setVisible(false);
+                    });
                 }
-            }
-            sent_label.setVisible(true);
-            ok_button.setVisible(true);
-            try{
-                BackupClient.getServer().resetChunks();
-                Thread.sleep(3000);
-            }
-            catch (Exception e){
-                e.getMessage();
-            }
-            Platform.runLater(() -> ok_button.fire());
+                catch (Exception e){
+                    e.getMessage();
+                }
+                //Platform.runLater(() -> ok_button.fire());
+                decreaseFiles();
+                counter++;
 
-
-
+            }
         };
+
 
         Thread t = new Thread(task);
         t.start();
@@ -68,12 +91,13 @@ public class progressBarController implements Initializable{
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ok_button.setOnAction(e -> {
-            // get a handle to the stage
             Stage stage = (Stage) ok_button.getScene().getWindow();
-            // do what you have to do
             stage.close();
-           // ((Node)(e.getSource())).getScene().getWindow().hide();
         });
-        controlProgress(filename,fsize);
+        controlProgress();
+    }
+
+    public void decreaseFiles(){
+        amountOfFiles--;
     }
 }
