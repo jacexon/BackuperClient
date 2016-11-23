@@ -3,6 +3,7 @@ package sample;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -44,16 +45,20 @@ public class clientScreenController implements Initializable {
     private MenuItem upload_menuitem;
 
     @FXML
-    private MenuItem help_menuitem;
-    @FXML
     private MenuItem periodic;
+
     @FXML
     private Button show_button;
     @FXML
     private Button get_button;
     @FXML
     private Button delete_button;
+    @FXML
+    private MenuItem help_menuitem;
+    @FXML
+    private MenuItem about;
 
+    @FXML private MenuItem howTo;
     @FXML
     private ObservableList<ServerTable> data;
     @FXML
@@ -64,8 +69,7 @@ public class clientScreenController implements Initializable {
     private Menu info_menu;
     private List<File> chosenFiles;
     //endregion
-
-
+    public static boolean done = true;
     public void handleUpload(ActionEvent event) throws Exception {
         Stage selectingFilesStage = new Stage();
         FileChooser fileChooser = new FileChooser();
@@ -87,7 +91,6 @@ public class clientScreenController implements Initializable {
         progressBarController.SendOrGet = 0;
         progressBarController.fsize.clear();
         progressBarController.filename.clear();
-        progressBarController.order = 0;
         progressBarController.counter = 0;
 
         for (int i = 0; i < chosenFiles.size(); i++) {
@@ -96,9 +99,7 @@ public class clientScreenController implements Initializable {
             progressBarController.filename.add(chosenFiles.get(i).getName());
         }
 
-
         if (chosenFiles != null) {
-
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -107,13 +108,14 @@ public class clientScreenController implements Initializable {
                         try {
                             if (!(BackupClient.getServer().checkFileOnServer(f.getName(), dt))) {
                                 BackupClient.send(BackupClient.getServer(), f.getPath(), f.getName(), BackupClient.getFileExtension(f), f.lastModified());
+                                done = true;
                             } else {
-                                Alert dialog = new Alert(Alert.AlertType.INFORMATION, "Confirm", ButtonType.OK, ButtonType.CANCEL);
-                                dialog.setHeaderText("File exists on the server");
-                                dialog.setContentText("File " + f.getName() + " is already on the server!");
-                                dialog.setResizable(true);
-                                dialog.getDialogPane().setPrefSize(250, 100);
-                                dialog.showAndWait();
+                                    Alert dialog = new Alert(Alert.AlertType.INFORMATION, "Confirm", ButtonType.OK, ButtonType.CANCEL);
+                                    dialog.setHeaderText("File exists on the server");
+                                    dialog.setContentText("File " + f.getName() + " is already on the server!");
+                                    dialog.setResizable(true);
+                                    dialog.getDialogPane().setPrefSize(250, 100);
+                                    dialog.showAndWait();
                             }
 
                         } catch (Exception e) {
@@ -125,7 +127,9 @@ public class clientScreenController implements Initializable {
             });
             t.start();
             createProgressBarWindow();
+
         }
+
     }
 
     public void showButtonAction(ActionEvent event) {
@@ -152,7 +156,6 @@ public class clientScreenController implements Initializable {
                     progressBarController.amountOfFiles = 1;
                     progressBarController.fsize.clear();
                     progressBarController.filename.clear();
-                    progressBarController.order = 0;
                     progressBarController.counter = 0;
                     progressBarController.SendOrGet = 1;
 
@@ -166,12 +169,6 @@ public class clientScreenController implements Initializable {
                         public void run() {
                             try{
                                 BackupClient.getFile(BackupClient.getServer().passAStream(pathToGet), filename);
-                                Alert dialog = new Alert(Alert.AlertType.CONFIRMATION, "Confirm", ButtonType.OK, ButtonType.CANCEL);
-                                dialog.setHeaderText("File has been downloaded!");
-                                dialog.setContentText("Your file has just been downloaded!");
-                                dialog.setResizable(true);
-                                dialog.getDialogPane().setPrefSize(250, 100);
-                                dialog.showAndWait();
                             }
                             catch(Exception e){
                                 e.getMessage();
@@ -194,6 +191,7 @@ public class clientScreenController implements Initializable {
         }
     }
 
+    //TODO DAć TASKOM JESZCZE JEDNĄ SZANSE
     public boolean checkFile(String fileName) {
         File file = new File("D:\\Client");
         boolean isInClient = false;
@@ -267,6 +265,35 @@ public class clientScreenController implements Initializable {
             dialog.setResizable(true);
             dialog.getDialogPane().setPrefSize(250, 200);
             dialog.showAndWait();
+        }
+    }
+
+    public void howToAction(ActionEvent event){
+        try {
+            Parent howToScreen = FXMLLoader.load(getClass().getResource("howTo.fxml"));
+            Scene howToScene = new Scene(howToScreen);
+            Stage howToStage = new Stage();
+            howToStage.setTitle("User Instruction");
+            howToStage.setScene(howToScene);
+            howToStage.show();
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+
+    }
+
+    public void aboutAction(ActionEvent event){
+        try {
+            Parent creditsScreen = FXMLLoader.load(getClass().getResource("credits.fxml"));
+            Scene creditsScene = new Scene(creditsScreen);
+            Stage creditsStage = new Stage();
+            creditsStage.setTitle("Authors");
+            creditsStage.setScene(creditsScene);
+            creditsStage.show();
+
+        } catch (Exception e) {
+            e.getMessage();
         }
     }
 

@@ -1,4 +1,5 @@
 package sample;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,6 +30,7 @@ public class LoginScreenController{
         Parent clientScreen = FXMLLoader.load(getClass().getResource("clientScreen.fxml"));
         Scene clientScene = new Scene(clientScreen);
         Stage clientStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        clientStage.setOnCloseRequest(e -> Platform.exit());
         //TODO poprawna obsługa nawiązywania połączenia z serwerem
         if (Integer.parseInt(port_textfield.getText()) > 1024 && !ip_textfield.getText().equals("")){
             try{

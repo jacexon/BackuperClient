@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -35,11 +36,14 @@ public class Scrubwoman {
                     fileName = fileName + "." + extension;
 
                     File f = filePath.toFile();
+                    Date dt = new Date(f.lastModified());
 
                     try {
-                        if(f.length()!=BackupClient.server.getFileSize(fileName,version)) {
-                            f.delete();
-                            deletedFilesNames.add(fileName);
+                        if(BackupClient.server.checkFileOnServer(fileName, dt)) {
+                            if (f.length() != BackupClient.server.getFileSize(fileName, version)) {
+                                f.delete();
+                                deletedFilesNames.add(fileName);
+                            }
                         }
 
                         System.out.println(filePath);

@@ -22,16 +22,7 @@ public class progressBarController implements Initializable{
     @FXML private Label sent_label;
     @FXML private Button ok_button;
 
-    /*
-    public static long[] fsize = new long[3];
-    public static int order = 0;
-    public static int counter = 0;
-    public static int amountOfFiles = 0;
-    public static String[] filename = {"1", "1"};
-    */
-
     public static int SendOrGet = 0;
-    public static int order = 0;
     public static int counter = 0;
     public static int amountOfFiles = 0;
     public static ArrayList<Long> fsize = new ArrayList<>();
@@ -46,8 +37,8 @@ public class progressBarController implements Initializable{
             while (amountOfFiles!=0){
                 if(SendOrGet == 0){
                     long progressSize = 0L;
-                    order++;
-                    info_label.setText("Sending files " + filename.get(counter) + "... (" + order + " of " + realAmount+ ")");
+                    info_label.setText("Sending files " + "... (loops:" + realAmount+ ")");
+
                     while (progressSize<fsize.get(counter)){
                         try {
                             progressSize=(BackupClient.getServer().getChunk()*4096);
@@ -78,9 +69,7 @@ public class progressBarController implements Initializable{
                 }
                 else{
                     long progressSize = 0L;
-                    System.out.println("ROZMIAR PLIKU: " + fsize.get(counter));
-                    order++;
-                    info_label.setText("Downloading file " + filename.get(counter) + "... (" + order + " of " + realAmount+ ")");
+                    info_label.setText("Downloading file " + filename.get(counter) + "...");
                     while (progressSize<fsize.get(counter)){
                         try {
                             progressSize=(BackupClient.clientChunks*4096);
@@ -117,9 +106,6 @@ public class progressBarController implements Initializable{
         t.start();
 
         }
-
-
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
