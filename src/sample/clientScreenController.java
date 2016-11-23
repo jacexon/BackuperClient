@@ -69,7 +69,7 @@ public class clientScreenController implements Initializable {
     private Menu info_menu;
     private List<File> chosenFiles;
     //endregion
-    public static boolean done = true;
+    public ArrayList<String> fn = new ArrayList<>();
     public void handleUpload(ActionEvent event) throws Exception {
         Stage selectingFilesStage = new Stage();
         FileChooser fileChooser = new FileChooser();
@@ -99,6 +99,27 @@ public class clientScreenController implements Initializable {
             progressBarController.filename.add(chosenFiles.get(i).getName());
         }
 
+
+
+        Task<Void> ta = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                return null;
+            }
+        };
+
+
+        ta.setOnSucceeded(e -> {
+            Alert dialog = new Alert(Alert.AlertType.INFORMATION, "Confirm", ButtonType.OK, ButtonType.CANCEL);
+            dialog.setHeaderText("File(s) exist(s) on the server");
+            dialog.setContentText("File(s) " + fn + " already on the server!");
+            dialog.setResizable(true);
+            dialog.getDialogPane().setPrefSize(250, 100);
+            dialog.showAndWait();
+        });
+
+
+
         if (chosenFiles != null) {
             Thread t = new Thread(new Runnable() {
                 @Override
@@ -108,14 +129,11 @@ public class clientScreenController implements Initializable {
                         try {
                             if (!(BackupClient.getServer().checkFileOnServer(f.getName(), dt))) {
                                 BackupClient.send(BackupClient.getServer(), f.getPath(), f.getName(), BackupClient.getFileExtension(f), f.lastModified());
-                                done = true;
+
                             } else {
-                                    Alert dialog = new Alert(Alert.AlertType.INFORMATION, "Confirm", ButtonType.OK, ButtonType.CANCEL);
-                                    dialog.setHeaderText("File exists on the server");
-                                    dialog.setContentText("File " + f.getName() + " is already on the server!");
-                                    dialog.setResizable(true);
-                                    dialog.getDialogPane().setPrefSize(250, 100);
-                                    dialog.showAndWait();
+                                //fn = f.getName();
+                                fn.add(f.getName());
+                                new Thread(ta).start();
                             }
 
                         } catch (Exception e) {
@@ -125,9 +143,9 @@ public class clientScreenController implements Initializable {
                     }
                 }
             });
+            fn.clear();
             t.start();
             createProgressBarWindow();
-
         }
 
     }
@@ -191,7 +209,6 @@ public class clientScreenController implements Initializable {
         }
     }
 
-    //TODO DAć TASKOM JESZCZE JEDNĄ SZANSE
     public boolean checkFile(String fileName) {
         File file = new File("D:\\Client");
         boolean isInClient = false;

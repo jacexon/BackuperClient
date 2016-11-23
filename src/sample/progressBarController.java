@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -37,8 +38,9 @@ public class progressBarController implements Initializable{
             while (amountOfFiles!=0){
                 if(SendOrGet == 0){
                     long progressSize = 0L;
-                    info_label.setText("Sending files " + "... (loops:" + realAmount+ ")");
-
+                    Platform.runLater(() -> {
+                        info_label.setText("Sending files... " + filename.get(counter) + "...(loops:" + realAmount+ ")");
+                    });
                     while (progressSize<fsize.get(counter)){
                         try {
                             progressSize=(BackupClient.getServer().getChunk()*4096);
@@ -51,21 +53,25 @@ public class progressBarController implements Initializable{
                         }
                     }
                     sent_label.setVisible(true);
-                    ok_button.setVisible(true);
                     try{
                         BackupClient.getServer().resetChunks();
+                        decreaseFiles();
+                        counter++;
                         Thread.sleep(3000);
                         Platform.runLater(() -> {
                             sent_label.setVisible(false);
+                            if(amountOfFiles == 0){
+                                ok_button.setVisible(true);
+                                sent_label.setVisible(true);
+                                sent_label.setText("ALL FILES SENT!");
+                            }
                         });
                     }
                     catch (Exception e){
                         e.getMessage();
                     }
                     //Platform.runLater(() -> ok_button.fire());
-                    decreaseFiles();
-                    counter++;
-
+                    //decreaseFiles();
                 }
                 else{
                     long progressSize = 0L;
